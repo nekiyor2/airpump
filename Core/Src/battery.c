@@ -10,7 +10,7 @@
 extern ADC_HandleTypeDef hadc1;
 
 void Battery_Init(void);
-
+{
 float Battery_ReadVoltage(void)
 {
 	HAL_ADC_Start(&hadc1);
@@ -24,5 +24,6 @@ float Battery_ReadVoltage(void)
     float v_battery = v_adc * 2.0f;
 //Повернення назад напруги батареї реальна.
     return v_battery;
+}
 }
 
