@@ -117,6 +117,20 @@ int main(void)
   {
       pressure = XGZP6847D_ReadPressure();
       battery_voltage = Battery_ReadVoltage();
+	  {
+		  printf("Pressure: %d.%02d",
+		         (int)pressure,
+		         (int)(pressure * 100) % 100);
+
+		  printf("Battery: %d.%02d",
+		         (int)Battery,
+		         (int)(battery_voltage * 100) % 100);
+
+		        if (HAL_I2C_IsDeviceReady(&hi2c1, (0x6D << 1), 3, 100) != HAL_OK)
+		        {
+		            printf("Sensor ERROR\r\n");
+		        }
+		        HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -412,21 +426,7 @@ void Error_Handler(void)
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
   while (1)
-	  while (1)
-	  {
-		  printf("Pressure: %d.%02d",
-		         (int)pressure,
-		         (int)(pressure * 100) % 100);
-
-		  printf("Battery: %d.%02d",
-		         (int)Battery,
-		         (int)(battery_voltage * 100) % 100);
-
-		        if (HAL_I2C_IsDeviceReady(&hi2c1, (0x6D << 1), 3, 100) != HAL_OK)
-		        {
-		            printf("Sensor ERROR\r\n");
-		        }
-		        HAL_Delay(1000);
+	
   }
   /* USER CODE END Error_Handler_Debug */
 }
