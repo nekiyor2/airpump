@@ -5,13 +5,14 @@
  *      Author: nikit
  */
 
-#ifndef INC_BATTERY_H_
-#define INC_BATTERY_H_
+#ifndef BATTERY_H_
+#define BATTERY_H_
 
 #include "main.h"
+#include "stm32c0xx_hal.h"
 
 void Battery_Init(void);
 float Battery_ReadVoltage(void);
 
 
-#endif /* INC_BATTERY_H_ */
+#endif
