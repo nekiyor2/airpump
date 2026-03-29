@@ -5,13 +5,15 @@
  *      Author: nikit
  */
 
-#ifndef INC_XGZP6847D_H_
-#define INC_XGZP6847D_H_
+#ifndef XGZP6847D_H_
+#define XGZP6847D_H_
 
 #include "main.h"
+#include "stm32c0xx_hal.h"
 
-void XGZP6847D_Init(void);
+HAL_StatusTypeDef
+XGZP6847D_Init(void);
 float XGZP6847D_ReadPressure(void);
 
 
-#endif /* INC_XGZP6847D_H_ */
+#endif
