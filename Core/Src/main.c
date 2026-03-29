@@ -122,8 +122,8 @@ int main(void)
 		         (int)pressure,
 		         (int)(pressure * 100) % 100);
 
-		  printf("Battery: %d.%02d",
-		         (int)Battery,
+		  printf("battery_voltage: %d.%02d",
+		         (int)battery_voltage,
 		         (int)(battery_voltage * 100) % 100);
 
 		        if (HAL_I2C_IsDeviceReady(&hi2c1, (0x6D << 1), 3, 100) != HAL_OK)
