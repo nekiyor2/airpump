@@ -23,7 +23,13 @@ float Battery_ReadVoltage(void)
     
     uint16_t adc_value = HAL_ADC_GetValue(&hadc1);
 
+    //ADC  12bit - 0...4095 = 0... 3.3v
     float v_adc     = (adc_value / 4095.0f) * 3.3f; // Перевід у напругу (0–3.3V)
-    float v_battery = v_adc * 2.0f;//Перевід у напругу батареї. дільник R4=R8=100k
+    float v_battery = v_adc * BATTERY_DIVIDER;//Перевід у напругу батареї. дільник 47K, 100K
+    
     return v_battery;
+}
+uint8_t Battery_IsLow(float voltage)
+{
+    return (voltage < BATTERY_MIN_V) ? 1 : 0; //?1:0 це if/else просто тернальний оператор
 }
