@@ -14,7 +14,7 @@
 // Можуть бути перезаписані командою з ESP32
 #define PRESSURE_MIN_DEFAULT     3.0f  // нижче → вмикаємо компресор
 #define PRESSURE_MAX_DEFAULT     4.5f  // вище  → вимикаємо компресор
-#define PRESSURE_RELIEF_DEFAULT  5.0f  // вище  → відкриваємо клапан (аварія)
+#define PRESSURE_RELIEF_DEFAULT  4.8f  // вище  → відкриваємо клапан (аварія)
 #define PRESSURE_RELIEF_CLOSE    4.7f  // нижче → закриваємо клапан
 
 // --- Швидкість компресора ---
