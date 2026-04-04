@@ -9,6 +9,7 @@
 #define INC_NRF24L01_H
 
 #include "stm32c0xx_hal.h"
+#include "main.h"
 
 // Піни
 #define NRF_CE_PORT     GPIO_Output_CE_GPIO_Port
