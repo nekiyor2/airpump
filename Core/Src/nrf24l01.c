@@ -145,3 +145,8 @@ uint8_t NRF24_Transmit(uint8_t *data, uint8_t len)
 
     return (status & NRF_STATUS_TX_DS) ? 1 : 0; // 1 = успіх
 }
+uint8_t NRF24_Check(void)
+{
+    uint8_t reg = NRF_ReadReg(NRF_REG_CONFIG);
+    return (reg == 0x0B) ? 1 : 0;
+}
