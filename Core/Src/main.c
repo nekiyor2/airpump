@@ -139,19 +139,17 @@ int main(void)
    Compressor_Init(&htim1);  // містить ESC arming + 2с затримку
    Control_Init();           // ініціалізує valve + скидає стан
    NRF24_Init(&hspi1);
-   
-   uint8_t test = NRF_ReadReg(NRF_REG_CONFIG); // має повернути 0x0B
-   if (test != 0x0B)
+
+   if (NRF24_Check() == 0)
    {
-       printf("NRF24 ERROR: reg=0x%02X\r\n", test);
+       printf("NRF24 ERROR\r\n");
    }
-   
+
    NRF24_SetRX();
 
    printf("Init done\r\n");
 
   /* USER CODE END 2 */
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	
