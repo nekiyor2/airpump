@@ -21,10 +21,14 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stdio.h" // перевірити наявність
+#include <stdio.h> // перевірити наявність
+#include <string.h> // перевірити наявність
 #include "battery.h"
 #include "xgzp6847d.h"
+#include "compressor.h"
 #include "valve.h"
+#include "control.h"
+#include "nrf24l01.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,32 +47,44 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+
 ADC_HandleTypeDef hadc1;
-
 I2C_HandleTypeDef hi2c1;
-
 SPI_HandleTypeDef hspi1;
-
+TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-float pressure = 0.0f;
-float battery_voltage = 0.0f;
+
+static float    pressure        = 0.0f;
+static float    battery_voltage = 0.0f;
+static uint32_t last_tx_tick    = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
+
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM3_Init(void);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+// Перенаправлення printf → UART
+int _write(int file, char *ptr, int len)
+{
+    HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
+    return len;
+}
 
 /* USER CODE END 0 */
 
@@ -78,7 +94,6 @@ static void MX_USART1_UART_Init(void);
   */
 int main(void)
 {
-
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -89,7 +104,16 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
+	
+  SystemClock_Config();
 
+  MX_GPIO_Init();
+  MX_I2C1_Init();
+  MX_SPI1_Init();
+  MX_ADC1_Init();
+  MX_USART1_UART_Init();
+  MX_TIM3_Init();
+	
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -100,66 +124,87 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
+	
+	MX_GPIO_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
+  MX_TIM3_Init();
+	
   /* USER CODE BEGIN 2 */
+	
   printf("System start\r\n");
 
+  // Ініціалізація модулів
   Battery_Init();
-  XGZP6847D_Init();
 
-	Valve_Init();
+  if (XGZP6847D_Init() != HAL_OK)
+  {
+      printf("Sensor ERROR\r\n");
+      // Не зупиняємось — продовжуємо, control.c обробить -1.0f
+  }
 
-// Логіка (control зробить нормально):
-if (pressure > 3.5f) Valve_Open();
-if (pressure < 3.3f) Valve_Close();
+  Compressor_Init(&htim1);  // містить ESC arming + 2с затримку
+  Control_Init();           // ініціалізує valve + скидає стан
+  NRF24_Init(&hspi1);
+  NRF24_SetRX();
 
-	Compressor_Init(&htim2);
-
-// Вмикаємо на 50%:
-Compressor_SetSpeed(50);
-
-// Зупиняємо:
-Compressor_Stop();
+  printf("Init done\r\n");
 	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	
-		  while (1)
-{
-    pressure        = XGZP6847D_ReadPressure();
-    battery_voltage = Battery_ReadVoltage();
+		 while (1)
+  {
+      // 1. Читаємо датчики
+      pressure        = XGZP6847D_ReadPressure();
+      battery_voltage = Battery_ReadVoltage();
 
-    Control_Update(pressure, battery_voltage);
+      // 2. Основна логіка керування
+      Control_Update(pressure, battery_voltage);
 
-    // Телеметрія кожні 500мс
-    if (HAL_GetTick() - last_tx_tick >= 500)
-    {
-        last_tx_tick = HAL_GetTick();
+      // 3. Прийом конфігурації від ESP32
+      if (NRF24_DataReady())
+      {
+          uint8_t buf[NRF_PAYLOAD_SIZE];
+          NRF24_Receive(buf);
 
-        TelemetryPacket_t pkt;
-        pkt.pressure        = pressure;
-        pkt.battery_voltage = battery_voltage;
-        Control_GetTelemetry(&pkt);
+          ControlConfig_t cfg;
+          memcpy(&cfg, buf, sizeof(cfg));
+          Control_SetConfig(&cfg);
 
-        NRF24_Transmit((uint8_t*)&pkt, sizeof(pkt));
-    }
+          printf("Config received\r\n");
+      }
 
-    // Перевірка вхідних даних від ESP32
-    if (NRF24_DataReady())
-    {
-        uint8_t buf[NRF_PAYLOAD_SIZE];
-        NRF24_Receive(buf);
-		ControlConfig_t cfg;
-        memcpy(&cfg, buf, sizeof(cfg));
-        Control_SetConfig(&cfg);
-    }
-}
+      // 4. Передача телеметрії кожні 500мс
+      if (HAL_GetTick() - last_tx_tick >= 500)
+      {
+          last_tx_tick = HAL_GetTick();
+
+          TelemetryPacket_t pkt;
+          pkt.pressure        = pressure;
+          pkt.battery_voltage = battery_voltage;
+          Control_GetTelemetry(&pkt);
+
+          uint8_t result = NRF24_Transmit((uint8_t*)&pkt, sizeof(pkt));
+
+          // Діагностика в UART
+          printf("P:%d.%02d bar | BAT:%d.%02dV | COMP:%d | VALVE:%d | TX:%s\r\n",
+              (int)pressure,
+              (int)(pressure * 100) % 100,
+              (int)battery_voltage,
+              (int)(battery_voltage * 100) % 100,
+              pkt.compressor_on,
+              pkt.valve_on,
+              result ? "OK" : "FAIL");
+      }
+
+      HAL_Delay(10); // 10мс між ітераціями = ~100Hz оновлення
+  }
+	
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
