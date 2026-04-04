@@ -124,25 +124,32 @@ int main(void)
   MX_TIM1_Init();
 	
   /* USER CODE BEGIN 2 */
-	
+
   printf("System start\r\n");
 
-  // Ініціалізація модулів
-  Battery_Init();
+   // Ініціалізація модулів
+   Battery_Init();
 
-  if (XGZP6847D_Init() != HAL_OK)
-  {
-      printf("Sensor ERROR\r\n");
-      // Не зупиняємось — продовжуємо, control.c обробить -1.0f
-  }
+   if (XGZP6847D_Init() != HAL_OK)
+   {
+       printf("Sensor ERROR\r\n");
+       // Не зупиняємось — продовжуємо, control.c обробить -1.0f
+   }
 
-  Compressor_Init(&htim1);  // містить ESC arming + 2с затримку
-  Control_Init();           // ініціалізує valve + скидає стан
-  NRF24_Init(&hspi1);
-  NRF24_SetRX();
+   Compressor_Init(&htim1);  // містить ESC arming + 2с затримку
+   Control_Init();           // ініціалізує valve + скидає стан
+   NRF24_Init(&hspi1);
+   
+   uint8_t test = NRF_ReadReg(NRF_REG_CONFIG); // має повернути 0x0B
+   if (test != 0x0B)
+   {
+       printf("NRF24 ERROR: reg=0x%02X\r\n", test);
+   }
+   
+   NRF24_SetRX();
 
-  printf("Init done\r\n");
-	
+   printf("Init done\r\n");
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
