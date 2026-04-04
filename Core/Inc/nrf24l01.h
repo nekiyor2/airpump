@@ -47,12 +47,13 @@
 // Розміри пакетів
 #define NRF_PAYLOAD_SIZE    12  // байт (підходить для обох структур)
 
-// Прототипи 
+// Прототипи
 void NRF24_Init(SPI_HandleTypeDef *hspi);
 void NRF24_SetRX(void);
 void NRF24_SetTX(void);
 uint8_t NRF24_DataReady(void);
 void NRF24_Receive(uint8_t *data);
 uint8_t NRF24_Transmit(uint8_t *data, uint8_t len);
+uint8_t NRF24_Check(void); // повертає 1 якщо ок, 0 якщо помилка
 
 #endif
