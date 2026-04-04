@@ -5,7 +5,6 @@
  *      Author: nikit
  */
 
-valve.c:
 #include "valve.h"
 
 static uint8_t _valve_state = 0; // 0 = закритий, 1 = відкритий
