@@ -11,8 +11,8 @@
 #include "stm32c0xx_hal.h"
 
 // PA1 — клапан через Q2 (AO3400A) + R7 (220 Ом)
-#define VALVE_PORT  GPIOA
-#define VALVE_PIN   GPIO_PIN_1
+#define VALVE_PORT  valve_GPIO_Port
+#define VALVE_PIN   valve_Pin
 
 void Valve_Init(void);
 void Valve_Open(void);
