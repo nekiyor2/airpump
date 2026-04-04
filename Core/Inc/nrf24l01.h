@@ -11,10 +11,10 @@
 #include "stm32c0xx_hal.h"
 
 // Піни
-#define NRF_CE_PORT     GPIOA
-#define NRF_CE_PIN      GPIO_PIN_3
-#define NRF_CSN_PORT    GPIOA
-#define NRF_CSN_PIN     GPIO_PIN_4
+#define NRF_CE_PORT     GPIO_Output_CE_GPIO_Port
+#define NRF_CE_PIN      GPIO_Output_CE_Pin
+#define NRF_CSN_PORT    GPIO_Output_CSN_GPIO_Port
+#define NRF_CSN_PIN     GPIO_Output_CSN_Pin
 
 // Команди nRF24L01
 #define NRF_CMD_R_REG       0x00
