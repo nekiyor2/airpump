@@ -32,12 +32,3 @@ void Compressor_Stop(void)
 {
     __HAL_TIM_SET_COMPARE(_htim, TIM_CHANNEL_3, ESC_MIN_US);
 }
-В main.c:
-// USER CODE BEGIN 2:
-Compressor_Init(&htim2);
-
-// Вмикаємо на 50%:
-Compressor_SetSpeed(50);
-
-// Зупиняємо:
-Compressor_Stop();
