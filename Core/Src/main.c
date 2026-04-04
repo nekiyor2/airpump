@@ -147,7 +147,11 @@ if (pressure < 3.3f) Valve_Close();
     {
         uint8_t buf[NRF_PAYLOAD_SIZE];
         NRF24_Receive(buf);
-		
+		ControlConfig_t cfg;
+        memcpy(&cfg, buf, sizeof(cfg));
+        Control_SetConfig(&cfg);
+    }
+}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
