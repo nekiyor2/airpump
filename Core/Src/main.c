@@ -116,6 +116,14 @@ int main(void)
 // Логіка (control зробить нормально):
 if (pressure > 3.5f) Valve_Open();
 if (pressure < 3.3f) Valve_Close();
+
+	Compressor_Init(&htim2);
+
+// Вмикаємо на 50%:
+Compressor_SetSpeed(50);
+
+// Зупиняємо:
+Compressor_Stop();
 	
   /* USER CODE END 2 */
 
