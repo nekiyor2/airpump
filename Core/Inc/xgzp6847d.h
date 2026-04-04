@@ -11,8 +11,7 @@
 #include "main.h"
 #include "stm32c0xx_hal.h"
 
-HAL_StatusTypeDef
-XGZP6847D_Init(void);
+HAL_StatusTypeDef XGZP6847D_Init(void);
 float XGZP6847D_ReadPressure(void);
 
 
