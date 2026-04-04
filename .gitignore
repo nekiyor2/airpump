@@ -1,9 +1,0 @@
-Debug/
-Release/
-.settings/
-.metadata/
-*.launch
-*.map
-*.bin
-*.hex
-*.elf
