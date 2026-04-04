@@ -51,7 +51,7 @@
 ADC_HandleTypeDef hadc1;
 I2C_HandleTypeDef hi2c1;
 SPI_HandleTypeDef hspi1;
-TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim1;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
@@ -70,7 +70,7 @@ static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART1_UART_Init(void);
-static void MX_TIM3_Init(void);
+static void MX_TIM1_Init(void);
 
 /* USER CODE BEGIN PFP */
 
@@ -112,7 +112,7 @@ int main(void)
   MX_SPI1_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
-  MX_TIM3_Init();
+  MX_TIM1_Init();
 	
   /* USER CODE END Init */
 
@@ -130,7 +130,7 @@ int main(void)
   MX_SPI1_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
-  MX_TIM3_Init();
+  MX_TIM1_Init();
 	
   /* USER CODE BEGIN 2 */
 	
@@ -500,7 +500,7 @@ void Error_Handler(void)
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
   while (1)
-	
+	  {
   }
   /* USER CODE END Error_Handler_Debug */
 }
