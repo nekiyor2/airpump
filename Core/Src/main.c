@@ -24,6 +24,7 @@
 #include "stdio.h" // перевірити наявність
 #include "battery.h"
 #include "xgzp6847d.h"
+#include "valve.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,6 +110,13 @@ int main(void)
 
   Battery_Init();
   XGZP6847D_Init();
+
+	Valve_Init();
+
+// Логіка (control зробить нормально):
+if (pressure > 3.5f) Valve_Open();
+if (pressure < 3.3f) Valve_Close();
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
