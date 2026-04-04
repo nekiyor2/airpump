@@ -121,24 +121,33 @@ if (pressure < 3.3f) Valve_Close();
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-      pressure = XGZP6847D_ReadPressure();
-      battery_voltage = Battery_ReadVoltage();
-	  {
-		  printf("Pressure: %d.%02d",
-		         (int)pressure,
-		         (int)(pressure * 100) % 100);
+	
+		  while (1)
+{
+    pressure        = XGZP6847D_ReadPressure();
+    battery_voltage = Battery_ReadVoltage();
 
-		  printf("battery_voltage: %d.%02d",
-		         (int)battery_voltage,
-		         (int)(battery_voltage * 100) % 100);
+    Control_Update(pressure, battery_voltage);
 
-		        if (HAL_I2C_IsDeviceReady(&hi2c1, (0x6D << 1), 3, 100) != HAL_OK)
-		        {
-		            printf("Sensor ERROR\r\n");
-		        }
-		        HAL_Delay(1000);
+    // Телеметрія кожні 500мс
+    if (HAL_GetTick() - last_tx_tick >= 500)
+    {
+        last_tx_tick = HAL_GetTick();
+
+        TelemetryPacket_t pkt;
+        pkt.pressure        = pressure;
+        pkt.battery_voltage = battery_voltage;
+        Control_GetTelemetry(&pkt);
+
+        NRF24_Transmit((uint8_t*)&pkt, sizeof(pkt));
+    }
+
+    // Перевірка вхідних даних від ESP32
+    if (NRF24_DataReady())
+    {
+        uint8_t buf[NRF_PAYLOAD_SIZE];
+        NRF24_Receive(buf);
+		
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
